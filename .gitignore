@@ -31,4 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Added to gitignore cos it contains secrets and also created a demo propertes file ###
 src/main/resources/application.properties
