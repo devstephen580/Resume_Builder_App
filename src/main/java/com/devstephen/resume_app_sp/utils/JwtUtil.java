@@ -1,11 +1,12 @@
 package com.devstephen.resume_app_sp.utils;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Configuration
@@ -31,9 +32,18 @@ public class JwtUtil {
 
     }
 
-    private Key getSignInKey() {
+    private SecretKey getSignInKey() {
         return Keys.hmacShaKeyFor(jwtSecretKey.getBytes());
     }
 
 
+// fix: migrate JWT parsing from deprecated JJWT 0.11 API to 0.12+ — replace setSigningKey/parseClaimsJws/getBody with verifyWith/parseSignedClaims/getPayload"
+    public String getUserIdFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(getSignInKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claims.getSubject();
+    }
 }
