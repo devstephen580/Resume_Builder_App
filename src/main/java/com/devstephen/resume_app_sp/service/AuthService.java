@@ -222,4 +222,9 @@ public class AuthService {
         }
 
     }
+
+    public AuthResponse getProfile(Object principalObject) {
+        User existingUser = (User) principalObject;
+        return convertToLoginResponse(existingUser);
+    }
 }
