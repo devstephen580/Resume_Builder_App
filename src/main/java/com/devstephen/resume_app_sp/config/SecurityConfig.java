@@ -29,13 +29,13 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain (HttpSecurity http){
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(new JwtAuthEntryPoint()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf( csrf -> csrf.disable())
                 .authorizeHttpRequests(request ->
-                        request.requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/verify-email", "/api/auth/upload-image").permitAll()
-                        .anyRequest().authenticated());
+                        request.requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/resend-verification", "/api/auth/verify-email", "/api/auth/upload-image").permitAll()
+                        .anyRequest().authenticated())
 
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(new JwtAuthEntryPoint()));
         return http.build();
 
     }

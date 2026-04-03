@@ -2,7 +2,6 @@ package com.devstephen.resume_app_sp.controller;
 
 import com.devstephen.resume_app_sp.dto.AuthResponse;
 import com.devstephen.resume_app_sp.dto.LoginRequest;
-import com.devstephen.resume_app_sp.dto.LoginResponse;
 import com.devstephen.resume_app_sp.dto.RegisterRequest;
 import com.devstephen.resume_app_sp.service.AuthService;
 import com.devstephen.resume_app_sp.service.FileUploadService;
@@ -16,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.devstephen.resume_app_sp.utils.AppConstants.*;
 
@@ -39,7 +39,7 @@ public class AuthController {
 
     }
 
-    @GetMapping(VERY_EMAIL)
+    @GetMapping(VERIFY_EMAIL)
     public ResponseEntity<?> verifyEmail (@RequestParam String token){
         log.info("Inside AuthController - verifyEmail(): {}", token);
 
@@ -60,5 +60,17 @@ public class AuthController {
 
         AuthResponse loginResponse = authService.login(request);
         return ResponseEntity.ok(loginResponse);
+    }
+
+    @PostMapping(RESEND_VERIFICATION)
+    public ResponseEntity<?> resendVerification(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+
+        if (Objects.isNull(email)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message ", " Email is required!"));
+        }
+
+        authService.resendVerification(email);
+        return ResponseEntity.ok().body(Map.of("success", true, "message", "verification email sent"));
     }
 }

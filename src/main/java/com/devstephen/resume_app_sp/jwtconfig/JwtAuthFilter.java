@@ -1,5 +1,6 @@
 package com.devstephen.resume_app_sp.jwtconfig;
 
+import com.devstephen.resume_app_sp.entity.User;
 import com.devstephen.resume_app_sp.repository.UserRepository;
 import com.devstephen.resume_app_sp.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
@@ -8,10 +9,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 @Component
 @RequiredArgsConstructor
@@ -30,12 +36,31 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
 
-
             try {
                 userId = jwtUtil.getUserIdFromToken(token);
             } catch (Exception e) {
                 log.error("Token is not valid/available");
             }
+
+            if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                try {
+                    if (jwtUtil.validateToken(token) && !jwtUtil.isTokenExpired(token)) {
+
+                        String finalUserId = userId;
+                        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found for ID: " + finalUserId));
+
+                        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
+
+                        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    }
+                } catch (Exception e) {
+                    log.error("Exception occurred while validating the token");
+                }
+
+            }
         }
+        filterChain.doFilter(request, response);
     }
 }
