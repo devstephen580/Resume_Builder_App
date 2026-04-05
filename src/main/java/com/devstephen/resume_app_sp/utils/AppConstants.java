@@ -10,4 +10,6 @@ public class AppConstants {
     public static final String LOGIN = "/login";
     public static final String RESEND_VERIFICATION = "/resend-verification";
     public static final String PROFILE = "/get-profile";
+
+    public static final String RESUME_CONTROLLER = "/api/resume";
 }
