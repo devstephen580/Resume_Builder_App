@@ -130,11 +130,11 @@ public class AuthService {
 
     private AuthResponse toRegisterResponse(User newUser) {
         return AuthResponse.builder()
-                .id(newUser.getId())
+                .userId(newUser.getId())
                 .name(newUser.getName())
                 .email(newUser.getEmail())
                 .emailVerified(newUser.getEmailVerified())
-                .token(null)
+                .token(newUser.getVerificationToken()) //Set to null later, added for postman accessing
                 .profileImageUrl(newUser.getProfileImageUrl())
                 .subscriptionPlan(newUser.getSubscription())
                 .createdAt(newUser.getCreatedAt())
@@ -194,7 +194,7 @@ public class AuthService {
         String token = jwtUtil.generateToken(user.getId());
 
             return AuthResponse.builder()
-                    .id(user.getId())
+                    .userId(user.getId())
                     .name(user.getName())
                     .email(user.getEmail())
                     .subscriptionPlan(user.getSubscription())

@@ -1,5 +1,13 @@
 package com.devstephen.resume_app_sp.dto;
 
-public class ResumeDto {
-    
+import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
+import lombok.Data;
+
+@Builder
+@Data
+public class CreateResumeRequest {
+
+    @NotBlank(message = "Title is required!")
+    private String title;
 }
