@@ -17,6 +17,6 @@ public class AppConstants {
     public static final String GET_RESUMES = "/get-resume";
     public static final String GET_RESUMES_BY_ID = "/get-resume-by-id/{id}";
     public static final String UPDATE_RESUME = "/update-resume/{id}";
-    public static final String UPLOAD_IMAGE_R = "/{id}/upload-image";
+    public static final String UPLOAD_RESUME_IMAGE = "/{id}/upload-image";
     public static final String DELETE_RESUME =  "/{id}/delete-resume";
 }

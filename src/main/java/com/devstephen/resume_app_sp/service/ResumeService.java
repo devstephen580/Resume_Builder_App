@@ -8,6 +8,7 @@ import com.devstephen.resume_app_sp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -72,5 +73,34 @@ public class ResumeService {
         throw new RuntimeException("No resumes available for the Id: "+ resumeId);
 
     }
+
+    public Resume updateResume(String resumeId, Resume updatedData, @Nullable Object principal) {
+
+        AuthResponse currentProfile = authService.getProfile(principal);
+        Resume existingResume = repository.findByUserIdAndId(currentProfile.getUserId(), resumeId).orElseThrow(() -> new RuntimeException("Resume not found."));
+
+        existingResume.setSkills(updatedData.getSkills());
+        existingResume.setCertifications(updatedData.getCertifications());
+        existingResume.setLanguages(updatedData.getLanguages());
+        existingResume.setHobbies(updatedData.getHobbies());
+        existingResume.setProjects(updatedData.getProjects());
+        existingResume.setEducation(updatedData.getEducation());
+        existingResume.setWorkExperiences(updatedData.getWorkExperiences());
+        existingResume.setContactInfo(updatedData.getContactInfo());
+        existingResume.setTitle(updatedData.getTitle());
+        existingResume.setProfileInfo(updatedData.getProfileInfo());
+        existingResume.setTemplate(updatedData.getTemplate());
+        existingResume.setThumbnailLink(updatedData.getThumbnailLink());
+
+        return repository.save(existingResume);
+    }
+
+    public void deleteResume(String resumeId, Object principal) {
+
+        AuthResponse currentProfile = authService.getProfile(principal);
+        Resume existingResume = repository.findByUserIdAndId(currentProfile.getUserId(), resumeId).orElseThrow(() -> new RuntimeException("Resume not found."));
+        repository.delete(existingResume);
+    }
+
 
 }
