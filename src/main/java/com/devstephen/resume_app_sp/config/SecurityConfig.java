@@ -3,6 +3,7 @@ package com.devstephen.resume_app_sp.config;
 import com.devstephen.resume_app_sp.jwtconfig.JwtAuthEntryPoint;
 import com.devstephen.resume_app_sp.jwtconfig.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Arrays;
 
@@ -58,6 +60,15 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public WebClient webClient(@Value("${paystack.secret.key}") String secretKey) {
+        return WebClient.builder()
+                .baseUrl("https://api.paystack.co")
+                .defaultHeader("Authorization", "Bearer " + secretKey)
+                .defaultHeader("Content-Type", "application/json")
+                .build();
     }
 
 }
