@@ -23,10 +23,9 @@ public class TemplateService {
 
         String subscriptionPlan = currentProfile.getSubscriptionPlan();
 
-        List<String> availableTemplates;
-
         Boolean isPremium = PREMIUM.equalsIgnoreCase(currentProfile.getSubscriptionPlan());
 
+        List<String> availableTemplates;
 
         if (isPremium) {
             availableTemplates = List.of("01", "02", "03");
@@ -35,10 +34,10 @@ public class TemplateService {
         }
 
         Map<String, Object> data = new HashMap<>();
-        data.put("availableTemplates", availableTemplates);
-        data.put("allTemplates", List.of("01", "02", "03"));
         data.put("subscriptionPlan", subscriptionPlan);
+        data.put("availableTemplates", availableTemplates);
         data.put("isPremium", isPremium);
+        data.put("allTemplates", List.of("01", "02", "03"));
 
         return data;
 

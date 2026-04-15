@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping()
+@RequestMapping("/api/templates")
 @RequiredArgsConstructor
 @Slf4j
 public class TemplateController {
@@ -22,6 +22,6 @@ public class TemplateController {
     @GetMapping
     public ResponseEntity<?> getTemplate(Authentication authentication){
         Map<String, Object> response = templateService.getTemplates(authentication.getPrincipal());
-        return null;
+        return ResponseEntity.ok(response);
     }
 }
