@@ -8,7 +8,7 @@ import lombok.Data;
 public class PaymentResponse {
     private String authorizationUrl;
     private String receipt;
-    private int amount;
+    private Integer amount;
     private String currency;
     private String planType;
     private String status;

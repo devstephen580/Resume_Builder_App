@@ -45,7 +45,6 @@ public class PaymentService {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("email", profile.getEmail());
         requestBody.put("amount", amount);
-        requestBody.put("reference", receipt);
         requestBody.put("currency", currency);
 
         Map response = webClient.post()
@@ -65,27 +64,25 @@ public class PaymentService {
         }
 
         String authorizationUrl = (String) data.get("authorization_url");
+        String paystackReference = (String) data.get("reference");
 
         // Step 3: Save payment record to DB with "Pending" status
         Payment payment = Payment.builder()
                 .userId(profile.getUserId())
                 .amount(amount)
                 .planType(planType)
+                .paystackOrderId(paystackReference.substring(0, 8))
                 .currency(currency)
                 .receipt(receipt)
                 .status("Pending")
                 .build();
         repository.save(payment);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("authorization_url", authorizationUrl);
-        result.put("receipt", receipt);
-
-
         return PaymentResponse.builder()
                 .authorizationUrl(authorizationUrl)
                 .receipt(receipt)
                 .amount(amount)
+                .paystackOrderId(paystackReference)
                 .currency(currency)
                 .planType(planType)
                 .status("Pending")
