@@ -7,6 +7,8 @@ import lombok.Data;
 @Builder
 public class PaymentResponse {
     private String authorizationUrl;
+    private String paystackSignature;
+    private String paystackAccessCode;
     private String receipt;
     private Integer amount;
     private String currency;
