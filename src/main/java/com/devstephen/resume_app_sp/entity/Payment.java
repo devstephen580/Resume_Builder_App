@@ -29,7 +29,7 @@ public class Payment {
     private String userId;
 
     private String paystackOrderId;
-    private String paystackSignature;
+//    private String paystackSignature;
 
     private String paystackAccessCode; //Marked for removal
 

@@ -6,6 +6,9 @@ import com.devstephen.resume_app_sp.entity.Payment;
 import com.devstephen.resume_app_sp.entity.User;
 import com.devstephen.resume_app_sp.repository.PaymentRepository;
 import com.devstephen.resume_app_sp.repository.UserRepository;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -82,7 +85,6 @@ public class PaymentService {
             .planType(planType)
             .paystackOrderId(paystackReference)
             .paystackAccessCode(paystackAccessCode)
-            .paystackSignature(paystackSignature)
             .currency(currency)
             .receipt(receipt)
             .status("Pending")
@@ -95,15 +97,13 @@ public class PaymentService {
         .amount(amount)
         .paystackOrderId(paystackReference)
         .paystackAccessCode(paystackAccessCode)
-        .paystackSignature(paystackSignature)
         .currency(currency)
         .planType(planType)
         .status("Pending")
         .build();
   }
 
-  public boolean verifyPayment(
-      String paystackOrderId, String paystackAccessCode, String paystackSignature) {
+  public boolean verifyPayment(String paystackOrderId, String paystackAccessCode) {
     try {
 
       Map response =
@@ -115,11 +115,10 @@ public class PaymentService {
               .bodyToMono(Map.class)
               .block();
 
-      if (response != null && SUCCESS.equalsIgnoreCase((String) response.get("status"))) {
+      if (response != null && Boolean.TRUE.equals(response.get("status"))) {
         Map<String, Object> data = (Map<String, Object>) response.get("data");
         String paymentStatus = (String) data.get("status");
         paystackAccessCode = (String) data.get("access_code");
-        paystackSignature = (String) data.get("reference");
 
         Payment payment;
         if (!SUCCESS.equalsIgnoreCase(paymentStatus)) {
@@ -139,7 +138,6 @@ public class PaymentService {
           }
 
           payment.setPaystackAccessCode(paystackAccessCode);
-          payment.setPaystackSignature(paystackSignature);
           payment.setStatus("paid");
           paymentRepository.save(payment);
         }
@@ -149,9 +147,9 @@ public class PaymentService {
         return true;
       }
 
-      return false;
     } catch (Exception e) {
       log.error("Error verifying the payment for orderId {}: ", paystackOrderId, e);
+      throw new RuntimeException("Payment verification error: " + e.getMessage());
     }
     return false;
   }
@@ -163,5 +161,37 @@ public class PaymentService {
         userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
     existingUser.setSubscription(planType);
     userRepository.save(existingUser);
+  }
+
+  public List<PaymentResponse> getUserPayments(@Nullable Object principal) {
+
+    AuthResponse profile = authService.getProfile(principal);
+
+    List<Payment> payments =
+        paymentRepository.findByUserIdOrderByCreatedAtDesc(profile.getUserId());
+    return payments
+        .stream()
+        .map(p -> toResponse(p)).collect(Collectors.toList());
+  }
+
+  public PaymentResponse getPaymentDetails(String orderId) {
+    Payment paymentDetails =
+        paymentRepository
+            .findByPaystackOrderId(orderId)
+            .orElseThrow(() -> new RuntimeException("No payment exist with id: " + orderId));
+    return toResponse(paymentDetails);
+  }
+
+  private PaymentResponse toResponse(Payment payment) {
+    return PaymentResponse.builder()
+        .userId(payment.getUserId())
+        .paystackOrderId(payment.getPaystackOrderId())
+        .status(payment.getStatus())
+        .amount(payment.getAmount())
+        .currency(payment.getCurrency())
+        .receipt(payment.getReceipt())
+        .planType(payment.getPlanType())
+        .createdAt(payment.getCreatedAt())
+        .build();
   }
 }
