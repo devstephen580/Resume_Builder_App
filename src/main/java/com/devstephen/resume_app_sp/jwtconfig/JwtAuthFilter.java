@@ -2,7 +2,6 @@ package com.devstephen.resume_app_sp.jwtconfig;
 
 import com.devstephen.resume_app_sp.entity.User;
 import com.devstephen.resume_app_sp.repository.UserRepository;
-import com.devstephen.resume_app_sp.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

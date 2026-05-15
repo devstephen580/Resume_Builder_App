@@ -21,4 +21,5 @@ public class AppConstants {
     public static final String DELETE_RESUME =  "/{id}/delete-resume";
 
     public static final String PREMIUM = "Premium";
+    public static final String SUCCESS = "success";
 }
