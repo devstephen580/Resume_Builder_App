@@ -171,7 +171,7 @@ public class PaymentService {
         paymentRepository.findByUserIdOrderByCreatedAtDesc(profile.getUserId());
     return payments
         .stream()
-        .map(p -> toResponse(p)).collect(Collectors.toList());
+        .map(this::toResponse).collect(Collectors.toList());
   }
 
   public PaymentResponse getPaymentDetails(String orderId) {

@@ -31,7 +31,7 @@ public class Payment {
     private String paystackOrderId;
 //    private String paystackSignature;
 
-    private String paystackAccessCode; //Marked for removal
+    private String paystackAccessCode;
 
     private Integer amount;
     private String currency;
