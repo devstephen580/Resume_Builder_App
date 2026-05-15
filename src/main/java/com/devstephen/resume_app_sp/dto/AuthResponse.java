@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class  AuthResponse {
-    private String id;
+    private String userId;
     private String name;
     private String email;
     private String profileImageUrl;

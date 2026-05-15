@@ -6,7 +6,7 @@ import com.devstephen.resume_app_sp.dto.RegisterRequest;
 import com.devstephen.resume_app_sp.entity.User;
 import com.devstephen.resume_app_sp.exceptions.ResourceExistsException;
 import com.devstephen.resume_app_sp.repository.UserRepository;
-import com.devstephen.resume_app_sp.utils.JwtUtil;
+import com.devstephen.resume_app_sp.jwtconfig.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,12 +45,12 @@ public class AuthService {
         userRepository.save(newUser);
 
 
-        sendVerificationEMail(newUser);
+        sendVerificationEmail(newUser);
 
         return toRegisterResponse(newUser);
     }
 
-    private void sendVerificationEMail(User newUser) {
+    private void sendVerificationEmail(User newUser) {
 
         log.info("Inside AuthService - sendVerificationEMail(): {}", newUser);
         try {
@@ -129,11 +129,11 @@ public class AuthService {
 
     private AuthResponse toRegisterResponse(User newUser) {
         return AuthResponse.builder()
-                .id(newUser.getId())
+                .userId(newUser.getId())
                 .name(newUser.getName())
                 .email(newUser.getEmail())
                 .emailVerified(newUser.getEmailVerified())
-                .token(newUser.getVerificationToken())
+                .token(newUser.getVerificationToken()) //Set to null later, added for postman accessing
                 .profileImageUrl(newUser.getProfileImageUrl())
                 .subscriptionPlan(newUser.getSubscription())
                 .createdAt(newUser.getCreatedAt())
@@ -193,7 +193,7 @@ public class AuthService {
         String token = jwtUtil.generateToken(user.getId());
 
             return AuthResponse.builder()
-                    .id(user.getId())
+                    .userId(user.getId())
                     .name(user.getName())
                     .email(user.getEmail())
                     .subscriptionPlan(user.getSubscription())
@@ -206,4 +206,24 @@ public class AuthService {
     }
 
 
+    public void resendVerification(String email) {
+        User existingUser = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found."));
+
+        if (!existingUser.getEmailVerified()) {
+            existingUser.setVerificationToken(existingUser.getVerificationToken());
+            existingUser.setVerificationExpires(LocalDateTime.now().plusHours(24));
+
+
+            userRepository.save(existingUser);
+            sendVerificationEmail(existingUser);
+        }else {
+            throw new RuntimeException("Email is already verified");
+        }
+
+    }
+
+    public AuthResponse getProfile(Object principalObject) {
+        User existingUser = (User) principalObject;
+        return convertToLoginResponse(existingUser);
+    }
 }
